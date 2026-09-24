@@ -1,5 +1,6 @@
 class NewsApp {
     constructor() {
+        this.API_KEY = "pub_4744a784b0264548b070b52448443d18";
         this.BASE_URL = "https://news-for-sample.onrender.com/api/news";
 
         this.state = {
@@ -160,19 +161,23 @@ class NewsApp {
     }
 
     buildUrl() {
-        buildUrl()
-        {
-            const params = new URLSearchParams({
-                page: this.state.page,
-                pageSize: 20
-            });
-            if (this.state.query) {
-                params.append("q", this.state.query);
-            } else {
-                params.append("category", this.state.category);
-            }
-            return `${this.BASE_URL}?${params.toString()}`;
+        const params = new URLSearchParams({
+            apiKey: this.API_KEY,
+            page: this.state.page,
+            pageSize: 20
+        });
+
+        if (this.state.query) {
+            params.append("q", this.state.query);
+            params.append("sortBy", "publishedAt");
+
+            return `${this.BASE_URL}/everything?${params.toString()}`;
         }
+
+        params.append("country", "us");
+        params.append("category", this.state.category);
+
+        return `${this.BASE_URL}/top-headlines?${params.toString()}`;
     }
 
     async loadNews() {
