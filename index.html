@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>NewsHub</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wgth;400;500;600;700&display=swap"
+        rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                📰NewsHub
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search Latest News">
+            </div>
+            <button id="themeToggle">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </header>
+        <nav>
+            <button class="category-btn active" data-category="general">
+                        General
+                    </button>
+            <button class="category-btn" data-category="business">
+                        Business
+                    </button>
+            <button class="category-btn " data-category="entertainment">
+                        Entertainment
+                    </button>
+            <button class="category-btn" data-category="health">
+                        Health
+                    </button>
+            <button class="category-btn" data-category="science">
+                        Science
+                    </button>
+            <button class="category-btn" data-category="sports">
+                        Sports
+                    </button>
+            <button class="category-btn" data-category="technology">
+                        Technology
+                    </button>
+        </nav>
+        <main>
+            <div id="error" class="error"></div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading News...</p>
+            </div>
+            <div id="newsGrid" class="news-grid"></div>
+            <div id="endMessage" class="end-message">
+            🎉YOU"VE REACHED TO THE END..
+            </div>
+        </main>
+        <button id="scrollTop">
+            ↗
+        </button>
+        <script src="script.js"></script>
+    </body>
+</html>
