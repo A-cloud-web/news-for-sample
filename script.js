@@ -198,6 +198,8 @@ class NewsApp {
                 "q",
                 this.state.query
             );
+        }else{
+            params.append("category",this.state.category);
         }
 
         return `${this.BASE_URL}?${params.toString()}`;
