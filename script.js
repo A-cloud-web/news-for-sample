@@ -211,15 +211,14 @@ class NewsApp {
             }
 
         } catch (error) {
-            console.error("News API Error:", error);
+    console.error("News API Error:", error);
 
-            this.showError(
-                "Failed to load news. Please try again."
-            );
-        } finally {
-            this.toggleLoading(false);
-        }
-    }
+    this.showError(
+        "Failed to load news. Please try again."
+    );
+} finally {
+    this.toggleLoading(false);
+}
 
     async loadMore() {
         if (
