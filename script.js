@@ -1,5 +1,4 @@
-class NewsApp 
-{
+class NewsApp {
     constructor() {
         this.BASE_URL = "https://news-for-sample.onrender.com/api/news";
 
@@ -124,7 +123,8 @@ class NewsApp
             query: ""
         });
 
-        const searchInput = document.getElementById("searchInput");
+        const searchInput =
+            document.getElementById("searchInput");
 
         if (searchInput) {
             searchInput.value = "";
@@ -215,17 +215,18 @@ class NewsApp
             console.log("News API Error:", error);
 
             this.showError(
-             "Failed to load news. Please try again."
+                "Failed to load news. Please try again."
             );
         } finally {
-    this.toggleLoading(false);
+            this.toggleLoading(false);
+        }
     }
 
-    asyncloadMore()
-    {
+    async loadMore() {
         if (
             this.state.loading ||
-            this.state.articles.length >= this.state.totalResults
+            this.state.articles.length >=
+                this.state.totalResults
         ) {
             this.showEndMessage();
             return;
@@ -262,7 +263,7 @@ class NewsApp
             }
 
         } catch (error) {
-            console.error("Load More Error:", error);
+            console.log("Load More Error:", error);
 
             this.state.page--;
         } finally {
@@ -270,8 +271,7 @@ class NewsApp
         }
     }
 
-    renderNews(articles, append = false) 
-    {
+    renderNews(articles, append = false) {
         const grid = document.getElementById("newsGrid");
 
         if (!grid) return;
@@ -298,17 +298,22 @@ class NewsApp
                       day: "numeric",
                       month: "short",
                       year: "numeric"
-                  }).format(new Date(article.publishedAt))
+                  }).format(
+                      new Date(article.publishedAt)
+                  )
                 : "Unknown date";
 
-            const title = article.title || "Untitled News";
+            const title =
+                article.title || "Untitled News";
 
             const source =
-                article.source && article.source.name
+                article.source &&
+                article.source.name
                     ? article.source.name
                     : "Unknown Source";
 
-            const articleUrl = article.url || "#";
+            const articleUrl =
+                article.url || "#";
 
             card.innerHTML = `
                 <img
@@ -355,14 +360,21 @@ class NewsApp
 
             card.addEventListener("click", e => {
                 if (
-                    e.target.classList.contains("share-btn") ||
-                    e.target.classList.contains("read-btn")
+                    e.target.classList.contains(
+                        "share-btn"
+                    ) ||
+                    e.target.classList.contains(
+                        "read-btn"
+                    )
                 ) {
                     return;
                 }
 
                 if (articleUrl !== "#") {
-                    window.open(articleUrl, "_blank");
+                    window.open(
+                        articleUrl,
+                        "_blank"
+                    );
                 }
             });
 
@@ -380,7 +392,8 @@ class NewsApp
                                 await navigator.share({
                                     title: title,
                                     text:
-                                        article.description || "",
+                                        article.description ||
+                                        "",
                                     url: articleUrl
                                 });
                             } catch (err) {
@@ -411,9 +424,9 @@ class NewsApp
         });
     }
 
-    showError(message) 
-    {
-        const error = document.getElementById("error");
+    showError(message) {
+        const error =
+            document.getElementById("error");
 
         if (!error) return;
 
@@ -421,17 +434,16 @@ class NewsApp
         error.style.display = "block";
     }
 
-    hideError() 
-    {
-        const error = document.getElementById("error");
+    hideError() {
+        const error =
+            document.getElementById("error");
 
         if (error) {
             error.style.display = "none";
         }
     }
 
-    showEndMessage() 
-    {
+    showEndMessage() {
         const endMessage =
             document.getElementById("endMessage");
 
@@ -440,8 +452,7 @@ class NewsApp
         }
     }
 
-    hideEndMessage() 
-    {
+    hideEndMessage() {
         const endMessage =
             document.getElementById("endMessage");
 
@@ -450,8 +461,7 @@ class NewsApp
         }
     }
 
-    toggleLoading(show) 
-    {
+    toggleLoading(show) {
         this.state.loading = show;
 
         const loading =
@@ -463,7 +473,10 @@ class NewsApp
         }
     }
 }
-}
-document.addEventListener("DOMContentLoaded", () => {
-    new NewsApp();
-});
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        new NewsApp();
+    }
+);
