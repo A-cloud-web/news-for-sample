@@ -1,4 +1,5 @@
-class NewsApp {
+class NewsApp 
+{
     constructor() {
         this.BASE_URL = "https://news-for-sample.onrender.com/api/news";
 
@@ -211,16 +212,17 @@ class NewsApp {
             }
 
         } catch (error) {
-    console.error("News API Error:", error);
+            console.error("News API Error:", error);
 
-    this.showError(
-        "Failed to load news. Please try again."
-    );
-} finally {
+            this.showError(
+             "Failed to load news. Please try again."
+            );
+        } finally {
     this.toggleLoading(false);
-}
+    }
 
-    async loadMore() {
+    asyncloadMore()
+    {
         if (
             this.state.loading ||
             this.state.articles.length >= this.state.totalResults
@@ -268,7 +270,8 @@ class NewsApp {
         }
     }
 
-    renderNews(articles, append = false) {
+    renderNews(articles, append = false) 
+    {
         const grid = document.getElementById("newsGrid");
 
         if (!grid) return;
@@ -408,7 +411,8 @@ class NewsApp {
         });
     }
 
-    showError(message) {
+    showError(message) 
+    {
         const error = document.getElementById("error");
 
         if (!error) return;
@@ -417,7 +421,8 @@ class NewsApp {
         error.style.display = "block";
     }
 
-    hideError() {
+    hideError() 
+    {
         const error = document.getElementById("error");
 
         if (error) {
@@ -425,7 +430,8 @@ class NewsApp {
         }
     }
 
-    showEndMessage() {
+    showEndMessage() 
+    {
         const endMessage =
             document.getElementById("endMessage");
 
@@ -434,7 +440,8 @@ class NewsApp {
         }
     }
 
-    hideEndMessage() {
+    hideEndMessage() 
+    {
         const endMessage =
             document.getElementById("endMessage");
 
@@ -443,7 +450,8 @@ class NewsApp {
         }
     }
 
-    toggleLoading(show) {
+    toggleLoading(show) 
+    {
         this.state.loading = show;
 
         const loading =
@@ -455,7 +463,7 @@ class NewsApp {
         }
     }
 }
-
+}
 document.addEventListener("DOMContentLoaded", () => {
     new NewsApp();
 });
