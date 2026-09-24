@@ -31,13 +31,11 @@ class NewsApp {
         const themeToggle = document.getElementById("themeToggle");
 
         if (themeIcon) {
-            themeIcon.textContent =
-                theme === "dark" ? "☀️" : "🌙";
+            themeIcon.textContent = theme === "dark" ? "☀️" : "🌙";
         }
 
         if (themeToggle) {
             themeToggle.addEventListener("click", () => {
-
                 const current =
                     document.documentElement.getAttribute("data-theme");
 
@@ -60,43 +58,30 @@ class NewsApp {
     }
 
     setupEvents() {
-
         document.querySelectorAll(".category-btn").forEach(btn => {
-
             btn.addEventListener("click", () => {
                 this.changeCategory(btn.dataset.category);
             });
-
         });
 
-        const searchInput =
-            document.getElementById("searchInput");
+        const searchInput = document.getElementById("searchInput");
 
         if (searchInput) {
-
             searchInput.addEventListener("input", e => {
-
                 clearTimeout(this.searchTimer);
 
                 this.searchTimer = setTimeout(() => {
-
-                    this.search(
-                        e.target.value.trim()
-                    );
-
+                    this.search(e.target.value.trim());
                 }, 500);
-
             });
         }
 
         window.addEventListener("scroll", () => {
-
             if (
                 window.innerHeight + window.scrollY >=
                 document.body.offsetHeight - 1000 &&
                 !this.state.loading
             ) {
-
                 if (
                     this.state.articles.length <
                     this.state.totalResults
@@ -106,50 +91,39 @@ class NewsApp {
             }
         });
 
-        const scrollTop =
-            document.getElementById("scrollTop");
+        const scrollTop = document.getElementById("scrollTop");
 
         if (scrollTop) {
-
             scrollTop.addEventListener("click", () => {
-
                 window.scrollTo({
                     top: 0,
                     behavior: "smooth"
                 });
-
             });
         }
     }
 
     changeCategory(category) {
-
-        if (category === this.state.category) {
-            return;
-        }
+        if (category === this.state.category) return;
 
         document
             .querySelectorAll(".category-btn")
-            .forEach(btn => {
-                btn.classList.remove("active");
-            });
+            .forEach(btn => btn.classList.remove("active"));
 
-        const selectedButton =
-            document.querySelector(
-                `[data-category="${category}"]`
-            );
+        const selectedButton = document.querySelector(
+            `[data-category="${category}"]`
+        );
 
         if (selectedButton) {
             selectedButton.classList.add("active");
         }
 
         this.resetState({
-            category: category,
+            category,
             query: ""
         });
 
-        const searchInput =
-            document.getElementById("searchInput");
+        const searchInput = document.getElementById("searchInput");
 
         if (searchInput) {
             searchInput.value = "";
@@ -159,16 +133,14 @@ class NewsApp {
     }
 
     search(query) {
-
         this.resetState({
-            query: query
+            query
         });
 
         this.loadNews();
     }
 
     resetState(updates) {
-
         this.state = {
             ...this.state,
             ...updates,
@@ -177,8 +149,7 @@ class NewsApp {
             totalResults: 0
         };
 
-        const grid =
-            document.getElementById("newsGrid");
+        const grid = document.getElementById("newsGrid");
 
         if (grid) {
             grid.innerHTML = "";
@@ -186,39 +157,33 @@ class NewsApp {
     }
 
     buildUrl() {
-
         const params = new URLSearchParams({
-            category: this.state.category,
             page: this.state.page,
             pageSize: 20
         });
 
         if (this.state.query) {
-            params.append(
-                "q",
-                this.state.query
-            );
-        }else{
-            params.append("category",this.state.category);
+            params.append("q", this.state.query);
+        } else {
+            params.append("category", this.state.category);
         }
 
         return `${this.BASE_URL}?${params.toString()}`;
     }
 
     async loadNews() {
-
-        if (this.state.loading) {
-            return;
-        }
+        if (this.state.loading) return;
 
         this.toggleLoading(true);
         this.hideError();
         this.hideEndMessage();
 
         try {
+            const url = this.buildUrl();
 
-            const response =
-                await fetch(this.buildUrl());
+            console.log("Fetching news from:", url);
+
+            const response = await fetch(url);
 
             if (!response.ok) {
                 throw new Error(
@@ -226,54 +191,41 @@ class NewsApp {
                 );
             }
 
-            const data =
-                await response.json();
+            const data = await response.json();
 
-            if (data.status !== "ok") {
-                throw new Error(
-                    data.message || "Failed to load news"
-                );
+            console.log("News API response:", data);
+
+            if (!data || !Array.isArray(data.articles)) {
+                throw new Error("Invalid news data");
             }
 
-            this.state.articles =
-                data.articles || [];
+            this.state.articles = data.articles;
 
             this.state.totalResults =
-                data.totalResults || 0;
+                data.totalResults || data.articles.length;
 
-            this.renderNews(
-                this.state.articles
-            );
+            this.renderNews(data.articles);
 
-            if (this.state.articles.length === 0) {
+            if (data.articles.length === 0) {
                 this.showError("No News Found");
             }
 
         } catch (error) {
-
-            console.error(
-                "News loading error:",
-                error
-            );
+            console.error("News API Error:", error);
 
             this.showError(
                 "Failed to load news. Please try again."
             );
-
         } finally {
-
             this.toggleLoading(false);
         }
     }
 
     async loadMore() {
-
         if (
             this.state.loading ||
-            this.state.articles.length >=
-            this.state.totalResults
+            this.state.articles.length >= this.state.totalResults
         ) {
-
             this.showEndMessage();
             return;
         }
@@ -283,9 +235,7 @@ class NewsApp {
         this.toggleLoading(true);
 
         try {
-
-            const response =
-                await fetch(this.buildUrl());
+            const response = await fetch(this.buildUrl());
 
             if (!response.ok) {
                 throw new Error(
@@ -293,26 +243,15 @@ class NewsApp {
                 );
             }
 
-            const data =
-                await response.json();
+            const data = await response.json();
 
-            if (data.status !== "ok") {
-                throw new Error(
-                    data.message || "Failed to load more news"
-                );
+            if (!data || !Array.isArray(data.articles)) {
+                throw new Error("Invalid news data");
             }
 
-            const newArticles =
-                data.articles || [];
+            this.state.articles.push(...data.articles);
 
-            this.state.articles.push(
-                ...newArticles
-            );
-
-            this.renderNews(
-                newArticles,
-                true
-            );
+            this.renderNews(data.articles, true);
 
             if (
                 this.state.articles.length >=
@@ -322,78 +261,57 @@ class NewsApp {
             }
 
         } catch (error) {
-
-            console.error(
-                "Load more error:",
-                error
-            );
+            console.error("Load More Error:", error);
 
             this.state.page--;
-
         } finally {
-
             this.toggleLoading(false);
         }
     }
 
     renderNews(articles, append = false) {
+        const grid = document.getElementById("newsGrid");
 
-        const grid =
-            document.getElementById("newsGrid");
-
-        if (!grid) {
-            return;
-        }
+        if (!grid) return;
 
         if (!append) {
             grid.innerHTML = "";
         }
 
         articles.forEach(article => {
+            const card = document.createElement("div");
 
-            const card =
-                document.createElement("div");
+            card.className = "news-card";
 
-            card.className =
-                "news-card";
+            const image = article.urlToImage
+                ? article.urlToImage
+                : "images/default-news.jpg";
 
-            const image =
-                article.urlToImage
-                    ? article.urlToImage
-                    : "images/default-news.jpg";
+            const description = article.description
+                ? article.description.substring(0, 120) + "..."
+                : "No description available.";
 
-            const description =
-                article.description
-                    ? article.description.substring(0, 120) + "..."
-                    : "No description available.";
+            const date = article.publishedAt
+                ? new Intl.DateTimeFormat("en-US", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric"
+                  }).format(new Date(article.publishedAt))
+                : "Unknown date";
 
-            let date = "Unknown date";
+            const title = article.title || "Untitled News";
 
-            if (article.publishedAt) {
-
-                date =
-                    new Intl.DateTimeFormat(
-                        "en-US",
-                        {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric"
-                        }
-                    ).format(
-                        new Date(article.publishedAt)
-                    );
-            }
-
-            const sourceName =
-                article.source &&
-                article.source.name
+            const source =
+                article.source && article.source.name
                     ? article.source.name
                     : "Unknown Source";
+
+            const articleUrl = article.url || "#";
 
             card.innerHTML = `
                 <img
                     src="${image}"
-                    alt="${article.title || "News"}"
+                    alt="${title}"
                     class="news-image"
                     loading="lazy"
                     onerror="this.src='images/default-news.jpg'"
@@ -402,7 +320,7 @@ class NewsApp {
                 <div class="news-content">
 
                     <h3 class="news-title">
-                        ${article.title || "Untitled News"}
+                        ${title}
                     </h3>
 
                     <p class="news-description">
@@ -410,19 +328,14 @@ class NewsApp {
                     </p>
 
                     <div class="news-meta">
-                        <span>
-                            ${sourceName}
-                        </span>
-
-                        <span>
-                            ${date}
-                        </span>
+                        <span>${source}</span>
+                        <span>${date}</span>
                     </div>
 
                     <div class="news-actions">
 
                         <a
-                            href="${article.url || "#"}"
+                            href="${articleUrl}"
                             target="_blank"
                             rel="noopener noreferrer"
                             class="read-btn">
@@ -439,7 +352,6 @@ class NewsApp {
             `;
 
             card.addEventListener("click", e => {
-
                 if (
                     e.target.classList.contains("share-btn") ||
                     e.target.classList.contains("read-btn")
@@ -447,11 +359,8 @@ class NewsApp {
                     return;
                 }
 
-                if (article.url) {
-                    window.open(
-                        article.url,
-                        "_blank"
-                    );
+                if (articleUrl !== "#") {
+                    window.open(articleUrl, "_blank");
                 }
             });
 
@@ -459,44 +368,34 @@ class NewsApp {
                 card.querySelector(".share-btn");
 
             if (shareButton) {
-
                 shareButton.addEventListener(
                     "click",
                     async e => {
-
                         e.stopPropagation();
 
                         if (navigator.share) {
-
                             try {
-
                                 await navigator.share({
-                                    title:
-                                        article.title || "News",
+                                    title: title,
                                     text:
                                         article.description || "",
-                                    url:
-                                        article.url || ""
+                                    url: articleUrl
                                 });
-
-                            } catch (error) {
-                                // Sharing cancelled
+                            } catch (err) {
+                                console.log(
+                                    "Share cancelled"
+                                );
                             }
-
                         } else {
-
                             try {
-
                                 await navigator.clipboard.writeText(
-                                    article.url || ""
+                                    articleUrl
                                 );
 
                                 alert(
                                     "News link copied!"
                                 );
-
-                            } catch (error) {
-
+                            } catch (err) {
                                 alert(
                                     "Unable to copy link."
                                 );
@@ -511,73 +410,53 @@ class NewsApp {
     }
 
     showError(message) {
+        const error = document.getElementById("error");
 
-        const error =
-            document.getElementById("error");
+        if (!error) return;
 
-        if (!error) {
-            return;
-        }
-
-        error.textContent =
-            message;
-
-        error.style.display =
-            "block";
+        error.textContent = message;
+        error.style.display = "block";
     }
 
     hideError() {
-
-        const error =
-            document.getElementById("error");
+        const error = document.getElementById("error");
 
         if (error) {
-            error.style.display =
-                "none";
+            error.style.display = "none";
         }
     }
 
     showEndMessage() {
-
-        const message =
+        const endMessage =
             document.getElementById("endMessage");
 
-        if (message) {
-            message.style.display =
-                "block";
+        if (endMessage) {
+            endMessage.style.display = "block";
         }
     }
 
     hideEndMessage() {
-
-        const message =
+        const endMessage =
             document.getElementById("endMessage");
 
-        if (message) {
-            message.style.display =
-                "none";
+        if (endMessage) {
+            endMessage.style.display = "none";
         }
     }
 
     toggleLoading(show) {
-
-        this.state.loading =
-            show;
+        this.state.loading = show;
 
         const loading =
             document.getElementById("loading");
 
         if (loading) {
-
             loading.style.display =
                 show ? "flex" : "none";
         }
     }
 }
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        new NewsApp();
-    }
-);
+document.addEventListener("DOMContentLoaded", () => {
+    new NewsApp();
+});
