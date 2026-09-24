@@ -1,6 +1,5 @@
 class NewsApp {
     constructor() {
-        this.API_KEY = "pub_4744a784b0264548b070b52448443d18";
         this.BASE_URL = "https://news-for-sample.onrender.com/api/news";
 
         this.state = {
@@ -28,27 +27,36 @@ class NewsApp {
 
         document.documentElement.setAttribute("data-theme", theme);
 
-        document.getElementById("themeIcon").textContent =
-            theme === "dark" ? "☀️" : "🌙";
+        const themeIcon = document.getElementById("themeIcon");
+        const themeToggle = document.getElementById("themeToggle");
 
-        document.getElementById("themeToggle").addEventListener("click", () => {
+        if (themeIcon) {
+            themeIcon.textContent =
+                theme === "dark" ? "☀️" : "🌙";
+        }
 
-            const current =
-                document.documentElement.getAttribute("data-theme");
+        if (themeToggle) {
+            themeToggle.addEventListener("click", () => {
 
-            const newTheme =
-                current === "dark" ? "light" : "dark";
+                const current =
+                    document.documentElement.getAttribute("data-theme");
 
-            document.documentElement.setAttribute(
-                "data-theme",
-                newTheme
-            );
+                const newTheme =
+                    current === "dark" ? "light" : "dark";
 
-            localStorage.setItem("theme", newTheme);
+                document.documentElement.setAttribute(
+                    "data-theme",
+                    newTheme
+                );
 
-            document.getElementById("themeIcon").textContent =
-                newTheme === "dark" ? "☀️" : "🌙";
-        });
+                localStorage.setItem("theme", newTheme);
+
+                if (themeIcon) {
+                    themeIcon.textContent =
+                        newTheme === "dark" ? "☀️" : "🌙";
+                }
+            });
+        }
     }
 
     setupEvents() {
@@ -56,26 +64,30 @@ class NewsApp {
         document.querySelectorAll(".category-btn").forEach(btn => {
 
             btn.addEventListener("click", () => {
-
                 this.changeCategory(btn.dataset.category);
-
             });
 
         });
 
-        document
-            .getElementById("searchInput")
-            .addEventListener("input", e => {
+        const searchInput =
+            document.getElementById("searchInput");
+
+        if (searchInput) {
+
+            searchInput.addEventListener("input", e => {
 
                 clearTimeout(this.searchTimer);
 
                 this.searchTimer = setTimeout(() => {
 
-                    this.search(e.target.value.trim());
+                    this.search(
+                        e.target.value.trim()
+                    );
 
                 }, 500);
 
             });
+        }
 
         window.addEventListener("scroll", () => {
 
@@ -89,18 +101,17 @@ class NewsApp {
                     this.state.articles.length <
                     this.state.totalResults
                 ) {
-
                     this.loadMore();
-
                 }
-
             }
-
         });
 
-        document
-            .getElementById("scrollTop")
-            .addEventListener("click", () => {
+        const scrollTop =
+            document.getElementById("scrollTop");
+
+        if (scrollTop) {
+
+            scrollTop.addEventListener("click", () => {
 
                 window.scrollTo({
                     top: 0,
@@ -108,31 +119,41 @@ class NewsApp {
                 });
 
             });
-
+        }
     }
 
     changeCategory(category) {
 
-        if (category === this.state.category) return;
+        if (category === this.state.category) {
+            return;
+        }
 
         document
             .querySelectorAll(".category-btn")
-            .forEach(btn =>
-                btn.classList.remove("active")
+            .forEach(btn => {
+                btn.classList.remove("active");
+            });
+
+        const selectedButton =
+            document.querySelector(
+                `[data-category="${category}"]`
             );
 
-        document
-            .querySelector(
-                [data.category="${category}"]
-            )
-            .classList.add("active");
+        if (selectedButton) {
+            selectedButton.classList.add("active");
+        }
 
         this.resetState({
-            category,
+            category: category,
             query: ""
         });
 
-        document.getElementById("searchInput").value = "";
+        const searchInput =
+            document.getElementById("searchInput");
+
+        if (searchInput) {
+            searchInput.value = "";
+        }
 
         this.loadNews();
     }
@@ -140,7 +161,7 @@ class NewsApp {
     search(query) {
 
         this.resetState({
-            query
+            query: query
         });
 
         this.loadNews();
@@ -156,33 +177,37 @@ class NewsApp {
             totalResults: 0
         };
 
-        document.getElementById("newsGrid").innerHTML = "";
+        const grid =
+            document.getElementById("newsGrid");
 
+        if (grid) {
+            grid.innerHTML = "";
+        }
     }
 
     buildUrl() {
+
         const params = new URLSearchParams({
-            apiKey: this.API_KEY,
+            category: this.state.category,
             page: this.state.page,
             pageSize: 20
         });
 
         if (this.state.query) {
-            params.append("q", this.state.query);
-            params.append("sortBy", "publishedAt");
-
-            return `${this.BASE_URL}/everything?${params.toString()}`;
+            params.append(
+                "q",
+                this.state.query
+            );
         }
 
-        params.append("country", "us");
-        params.append("category", this.state.category);
-
-        return `${this.BASE_URL}/top-headlines?${params.toString()}`;
+        return `${this.BASE_URL}?${params.toString()}`;
     }
 
     async loadNews() {
 
-        if (this.state.loading) return;
+        if (this.state.loading) {
+            return;
+        }
 
         this.toggleLoading(true);
         this.hideError();
@@ -190,30 +215,44 @@ class NewsApp {
 
         try {
 
-            const response = await fetch(this.buildUrl());
+            const response =
+                await fetch(this.buildUrl());
 
             if (!response.ok) {
-                throw new Error("Network Error");
+                throw new Error(
+                    `HTTP Error: ${response.status}`
+                );
             }
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (data.status !== "ok") {
-                throw new Error(data.message);
+                throw new Error(
+                    data.message || "Failed to load news"
+                );
             }
 
-            this.state.articles = data.articles;
-            this.state.totalResults = data.totalResults;
+            this.state.articles =
+                data.articles || [];
 
-            this.renderNews(data.articles);
+            this.state.totalResults =
+                data.totalResults || 0;
 
-            if (data.articles.length === 0) {
+            this.renderNews(
+                this.state.articles
+            );
+
+            if (this.state.articles.length === 0) {
                 this.showError("No News Found");
             }
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "News loading error:",
+                error
+            );
 
             this.showError(
                 "Failed to load news. Please try again."
@@ -222,21 +261,19 @@ class NewsApp {
         } finally {
 
             this.toggleLoading(false);
-
         }
-
     }
 
     async loadMore() {
 
         if (
             this.state.loading ||
-            this.state.articles.length >= this.state.totalResults
+            this.state.articles.length >=
+            this.state.totalResults
         ) {
 
             this.showEndMessage();
             return;
-
         }
 
         this.state.page++;
@@ -245,34 +282,49 @@ class NewsApp {
 
         try {
 
-            const response = await fetch(this.buildUrl());
+            const response =
+                await fetch(this.buildUrl());
 
             if (!response.ok) {
-                throw new Error("Network Error");
+                throw new Error(
+                    `HTTP Error: ${response.status}`
+                );
             }
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
             if (data.status !== "ok") {
-                throw new Error(data.message);
+                throw new Error(
+                    data.message || "Failed to load more news"
+                );
             }
 
-            this.state.articles.push(...data.articles);
+            const newArticles =
+                data.articles || [];
 
-            this.renderNews(data.articles, true);
+            this.state.articles.push(
+                ...newArticles
+            );
+
+            this.renderNews(
+                newArticles,
+                true
+            );
 
             if (
                 this.state.articles.length >=
                 this.state.totalResults
             ) {
-
                 this.showEndMessage();
-
             }
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Load more error:",
+                error
+            );
 
             this.state.page--;
 
@@ -281,9 +333,15 @@ class NewsApp {
             this.toggleLoading(false);
         }
     }
-renderNews(articles, append = false) {
 
-        const grid = document.getElementById("newsGrid");
+    renderNews(articles, append = false) {
+
+        const grid =
+            document.getElementById("newsGrid");
+
+        if (!grid) {
+            return;
+        }
 
         if (!append) {
             grid.innerHTML = "";
@@ -291,28 +349,49 @@ renderNews(articles, append = false) {
 
         articles.forEach(article => {
 
-            const card = document.createElement("div");
-            card.className = "news-card";
+            const card =
+                document.createElement("div");
 
-            const image = article.urlToImage
-                ? article.urlToImage
-                : "images/default-news.jpg";
+            card.className =
+                "news-card";
+
+            const image =
+                article.urlToImage
+                    ? article.urlToImage
+                    : "images/default-news.jpg";
 
             const description =
                 article.description
-                ? article.description.substring(0, 120) + "..."
-                : "No description available.";
+                    ? article.description.substring(0, 120) + "..."
+                    : "No description available.";
 
-            const date = new Intl.DateTimeFormat("en-US", {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-            }).format(new Date(article.publishedAt));
+            let date = "Unknown date";
+
+            if (article.publishedAt) {
+
+                date =
+                    new Intl.DateTimeFormat(
+                        "en-US",
+                        {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric"
+                        }
+                    ).format(
+                        new Date(article.publishedAt)
+                    );
+            }
+
+            const sourceName =
+                article.source &&
+                article.source.name
+                    ? article.source.name
+                    : "Unknown Source";
 
             card.innerHTML = `
                 <img
                     src="${image}"
-                    alt="${article.title}"
+                    alt="${article.title || "News"}"
                     class="news-image"
                     loading="lazy"
                     onerror="this.src='images/default-news.jpg'"
@@ -321,7 +400,7 @@ renderNews(articles, append = false) {
                 <div class="news-content">
 
                     <h3 class="news-title">
-                        ${article.title}
+                        ${article.title || "Untitled News"}
                     </h3>
 
                     <p class="news-description">
@@ -329,15 +408,21 @@ renderNews(articles, append = false) {
                     </p>
 
                     <div class="news-meta">
-                        <span>${article.source.name}</span>
-                        <span>${date}</span>
+                        <span>
+                            ${sourceName}
+                        </span>
+
+                        <span>
+                            ${date}
+                        </span>
                     </div>
 
                     <div class="news-actions">
 
                         <a
-                            href="${article.url}"
+                            href="${article.url || "#"}"
                             target="_blank"
+                            rel="noopener noreferrer"
                             class="read-btn">
                             Read More
                         </a>
@@ -351,74 +436,146 @@ renderNews(articles, append = false) {
                 </div>
             `;
 
-            card.addEventListener("click", (e) => {
+            card.addEventListener("click", e => {
 
                 if (
                     e.target.classList.contains("share-btn") ||
                     e.target.classList.contains("read-btn")
-                ) return;
+                ) {
+                    return;
+                }
 
-                window.open(article.url, "_blank");
-
+                if (article.url) {
+                    window.open(
+                        article.url,
+                        "_blank"
+                    );
+                }
             });
 
-            // Share button
-            card.querySelector(".share-btn")
-                .addEventListener("click", async (e) => {
+            const shareButton =
+                card.querySelector(".share-btn");
 
-                    e.stopPropagation();
+            if (shareButton) {
 
-                    if (navigator.share) {
+                shareButton.addEventListener(
+                    "click",
+                    async e => {
 
-                        try {
+                        e.stopPropagation();
 
-                            await navigator.share({
-                                title: article.title,
-                                text: article.description || "",
-                                url: article.url
-                            });
+                        if (navigator.share) {
 
-                        } catch (err) {}
+                            try {
 
-                    } else {
+                                await navigator.share({
+                                    title:
+                                        article.title || "News",
+                                    text:
+                                        article.description || "",
+                                    url:
+                                        article.url || ""
+                                });
 
-                        navigator.clipboard.writeText(article.url);
+                            } catch (error) {
+                                // Sharing cancelled
+                            }
 
-                        alert("News link copied!");
+                        } else {
 
+                            try {
+
+                                await navigator.clipboard.writeText(
+                                    article.url || ""
+                                );
+
+                                alert(
+                                    "News link copied!"
+                                );
+
+                            } catch (error) {
+
+                                alert(
+                                    "Unable to copy link."
+                                );
+                            }
+                        }
                     }
-
-                });
+                );
+            }
 
             grid.appendChild(card);
-
         });
     }
-showError(message) {
-        const error = document.getElementById("error");
-        error.textContent = message;
-        error.style.display = "block";
+
+    showError(message) {
+
+        const error =
+            document.getElementById("error");
+
+        if (!error) {
+            return;
+        }
+
+        error.textContent =
+            message;
+
+        error.style.display =
+            "block";
     }
 
     hideError() {
-        document.getElementById("error").style.display = "none";
+
+        const error =
+            document.getElementById("error");
+
+        if (error) {
+            error.style.display =
+                "none";
+        }
     }
 
     showEndMessage() {
-        document.getElementById("endMessage").style.display = "block";
+
+        const message =
+            document.getElementById("endMessage");
+
+        if (message) {
+            message.style.display =
+                "block";
+        }
     }
 
     hideEndMessage() {
-        document.getElementById("endMessage").style.display = "none";
+
+        const message =
+            document.getElementById("endMessage");
+
+        if (message) {
+            message.style.display =
+                "none";
+        }
     }
 
     toggleLoading(show) {
-        this.state.loading = show;
-        document.getElementById("loading").style.display =
-            show ? "flex" : "none";
+
+        this.state.loading =
+            show;
+
+        const loading =
+            document.getElementById("loading");
+
+        if (loading) {
+
+            loading.style.display =
+                show ? "flex" : "none";
+        }
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    new NewsApp();
-});
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        new NewsApp();
+    }
+);
